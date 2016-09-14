@@ -44,7 +44,7 @@ def testFitness(path):
         curloc = nextloc
     return cost
 
-#"mates" permutations one and two together producing count offspring, retrning all of them in a single array
+#"mates" permutations one and two together producing a single offspring
 def mate(one,two):
     split=random.randint(1,len(one) -1)
     child=[]
@@ -66,32 +66,29 @@ def mate(one,two):
                 
     return child
 
+#creating the random starting population
 population = []
-for i in range(1000):
+for i in range(100):
     population.append((0,[i for i in random.sample(range(len(indexMap)),len(indexMap))]))
 
 #change the range here to increase number of iterations
 for a in range(50):
-    unsortedstrs = {" ".join(["{}".format(j) for j in i[1]]) for i in population}
-    unsortedints = [(0,[int(j) for j in i.split(" ")]) for i in unsortedstrs]
-
-    population = sorted([(testFitness(i[1]),i[1]) for i in unsortedints],key=lambda x: x[0])[:(math.floor(len(population)**(1/2.0)))]
-
-    print("Iteration {0}. Population: {1}, Top fitness: {2}, Lowest fitness: {3}".format(a,len(population),population[0][0],population[len(population)-1][0]))
     
     temppop=population
-    print("mating: {}".format(len(population)**2))
+    #print("Mating: {}".format(len(population)**2))
     for i in range(len(population)**2):
-        #print("mating: {}".format(count))
-        #count+=1
         temppop.append((0,mate(population[i%len(population)][1],population[math.floor(i/len(population))][1])))
-        time.sleep(0.001)
+        time.sleep(0.001) #slow the operation down a little
     population=temppop
+    
+    unsortedstrs = {" ".join(["{}".format(j) for j in i[1]]) for i in population} #removing any duplicates, since we're storing every permutation as an array within a tuple we need to convert the array into a string so it can be hashed
+    unsortedints = [(0,[int(j) for j in i.split(" ")]) for i in unsortedstrs] #converting back to an array of tuples, with the second element of the tuple being the permutation
 
+    #Test every member of the population for their fitness, then get the top sqrt(len(population)) of the population
+    population = sorted([(testFitness(i[1]),i[1]) for i in unsortedints],key=lambda x: x[0])[:(math.floor(len(population)**(1/2.0)))] 
+    
+    print("Iteration {0}. Population: {1}, Top fitness: {2}, Lowest fitness: {3}".format(a+1,len(population),population[0][0],population[len(population)-1][0]))
+    
+#print out the most efficient order
 for i in population[0][1]:
     print(indexMap[i])
-
-    
-    
-
-
